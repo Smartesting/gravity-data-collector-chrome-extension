@@ -33,7 +33,7 @@ const manifest: chrome.runtime.ManifestV3 = {
       css: ['assets/css/contentStyle<KEY>.chunk.css'],
     },
   ],
-  devtools_page: 'src/pages/devtools/index.html',
+  //devtools_page: 'src/pages/devtools/index.html',
   web_accessible_resources: [
     {
       resources: ['assets/js/*.js', 'assets/css/*.css', 'icon-128.png', 'icon-34.png'],

@@ -11,6 +11,8 @@ This project has been created from a template of Chrome Extension Boilerplate ([
 1. Clone this repository.
 2. Install pnpm globally: `npm install -g pnpm` (check your node version >= 16.6, recommended >= 18)
 3. Run `pnpm install`
+4. Run `npx husky install` to install husky hook
+
 
 ### And next, depending on the needs:
 
