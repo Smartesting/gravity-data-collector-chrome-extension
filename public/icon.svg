@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="34" height="34" viewBox="0 0 122.847 111.341">
+    <g transform="translate(-47.838 -1.502)">
+        <path transform="matrix(.73417 -.67897 .72234 .69153 0 0)" d="M23.705 145.951H66.07v3.057H23.705z"
+              style="fill: rgb(110, 110, 110); fill-opacity: 1; stroke-width: 0.16441; stroke-miterlimit: 4; stroke-dasharray: none;"/>
+        <circle cx="156.141" cy="56.071" r="9.544"
+                style="fill: rgb(255, 0, 152); fill-opacity: 1; stroke-width: 0.209; stroke-miterlimit: 4; stroke-dasharray: none;"/>
+        <path transform="matrix(.34606 .93821 -.82008 .57225 0 0)" d="M83.332-92.452h61.236v3.679H83.332z"
+              style="fill: rgb(110, 110, 110); fill-opacity: 1; stroke-width: 0.21685; stroke-miterlimit: 4; stroke-dasharray: none;"/>
+        <circle cx="101.639" cy="25.278" r="18.776"
+                style="fill: rgb(197, 200, 233); fill-opacity: 1; stroke-width: 0.282351; stroke-miterlimit: 4; stroke-dasharray: none;"/>
+        <path d="M68.072 82.994h54.758v3.955H68.072z"
+              style="fill: rgb(110, 110, 110); fill-opacity: 1; stroke-width: 0.212615; stroke-miterlimit: 4; stroke-dasharray: none;"/>
+        <circle cx="68.072" cy="84.972" r="15.234"
+                style="fill: rgb(139, 49, 255); fill-opacity: 1; stroke-width: 0.191449; stroke-miterlimit: 4; stroke-dasharray: none;"/>
+        <ellipse cx="122.83" cy="84.972" rx="22.871" ry="22.872"
+                 style="fill: rgb(101, 0, 111); fill-opacity: 1; stroke-width: 0.205255;"/>
+    </g>
+</svg>

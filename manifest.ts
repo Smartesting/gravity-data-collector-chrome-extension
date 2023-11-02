@@ -5,7 +5,7 @@ import packageJson from './package.json';
  */
 const manifest: chrome.runtime.ManifestV3 = {
   manifest_version: 3,
-  name: packageJson.name,
+  name: 'Gravity Data Collector',
   version: packageJson.version,
   description: packageJson.description,
   permissions: ['storage'],
@@ -22,6 +22,7 @@ const manifest: chrome.runtime.ManifestV3 = {
   //   newtab: 'src/pages/newtab/index.html',
   // },
   icons: {
+    '34': 'icon-34.png',
     '128': 'icon-128.png',
   },
   content_scripts: [
