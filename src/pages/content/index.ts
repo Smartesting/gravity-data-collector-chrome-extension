@@ -1,7 +1,7 @@
-console.log('content loaded');
+console.log('Load Gravity Data Collector content')
 
 /**
  * @description
  * Chrome extensions don't support modules in content scripts.
  */
-import('./components/Demo');
+import('./dataCollector')
