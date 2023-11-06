@@ -12,9 +12,27 @@
 }
 
 .popup>.body {
-  flex-grow: 1;
+  display: flex;
 }
 
 .popup>.footer-error {
   color:red
+}
+
+.popup table {
+  flex-grow: 1;
+}
+
+.popup table td {
+  height: 30px;
+}
+
+.popup table td:nth-child(1) {
+  text-align: end;
+  padding-right: 2px;
+}
+
+.popup table td:nth-child(2) {
+  text-align: start;
+  padding-left: 2px;
 }
