@@ -1,7 +1,6 @@
 import { render, screen } from '@testing-library/react'
 import { userEvent } from '@testing-library/user-event'
 import '@testing-library/jest-dom'
-
 import CollectorControls from '@pages/content/ui/CollectorControls/CollectorControls'
 
 describe('CollectorControls', function () {

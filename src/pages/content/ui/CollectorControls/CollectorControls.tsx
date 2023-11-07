@@ -19,7 +19,7 @@ const Container = styled.div`
   transform: translate(-50%);
 
   z-index: 100000;
-  padding: 6px 12px;
+  padding: 0;
   min-width: 250px;
   display: flex;
   flex-direction: column;
@@ -57,7 +57,7 @@ const CollectorControls: React.FunctionComponent = () => {
               ? 'Gravity collector is running... '
               : 'Gravity collector is stopped '}
           </div>
-          <ControlButton>
+          <ControlButton data-testid='gdc-play-stop-button'>
             <FontAwesomeIcon
               onClick={() => setIsRunning(!isRunning)}
               icon={isRunning ? faStop : faPlay}
@@ -73,17 +73,18 @@ const CollectorControls: React.FunctionComponent = () => {
 
 export default CollectorControls
 
-const ExpandButton = styled.div`
+const ExpandButton = styled.button`
   cursor: pointer;
   width: 100%;
   display: flex;
+  border: none;
 
   :hover {
     background-color: #d3d3d3;
   }
 
   & svg {
-    height: 18px;
+    height: 12px;
     flex-grow: 1;
     color: darkgray;
   }
