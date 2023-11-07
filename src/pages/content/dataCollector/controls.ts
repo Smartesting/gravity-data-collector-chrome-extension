@@ -4,6 +4,7 @@ import { CollectorOptions } from '@smartesting/gravity-data-collector'
 // eslint-disable-next-line import/no-duplicates
 import GravityCollector from '@smartesting/gravity-data-collector/dist'
 import CollectorWrapper from '@smartesting/gravity-data-collector/dist/collector/CollectorWrapper'
+import { GRAVITY_SESSION_TRACKING_SUSPENDED } from '@smartesting/gravity-data-collector/dist/tracking-handler/TrackingHandler'
 
 export function initializeCollector(
   options: Partial<CollectorOptions>,
@@ -25,8 +26,9 @@ export function initializeCollector(
 export function terminateCollector(): GravityResponse<CollectorState> {
   const { error, data: collectorWrapper } = getCollectorWrapper()
   if (error) return { error, data: null }
-  collectorWrapper.sessionIdHandler.generateNewSessionId()
   collectorWrapper.trackingHandler.deactivateTracking()
+  collectorWrapper.sessionIdHandler.generateNewSessionId()
+  window.sessionStorage.removeItem(GRAVITY_SESSION_TRACKING_SUSPENDED)
   delete (window as any)._GravityCollector
   return { error: null, data: CollectorState.STOPPED }
 }
