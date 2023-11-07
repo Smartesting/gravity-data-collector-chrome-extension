@@ -44,11 +44,14 @@ const CollectorControls: React.FunctionComponent = () => {
 
   return (
     <Container>
-      <ExpandButton onClick={() => setCollapsed(!collapsed)}>
+      <ExpandButton
+        data-testid='gdc-expand'
+        onClick={() => setCollapsed(!collapsed)}
+      >
         <FontAwesomeIcon icon={collapsed ? faCaretDown : faCaretUp} />
       </ExpandButton>
       {!collapsed && (
-        <Controls>
+        <Controls data-testid='gdc-controls'>
           <div style={{ flexGrow: 1 }}>
             {isRunning
               ? 'Gravity collector is running... '
