@@ -1,1 +1,3 @@
-// Do what you need to set up your test
+import chrome from 'jest-chrome'
+
+Object.assign(global, chrome)

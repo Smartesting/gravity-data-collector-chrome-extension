@@ -2,85 +2,71 @@ import React, { useEffect, useState } from 'react'
 import '@pages/popup/Popup.css'
 import withSuspense from '@src/shared/hoc/withSuspense'
 import withErrorBoundary from '@src/shared/hoc/withErrorBoundary'
-import { sendActiveTabMessage } from '@src/shared/messages'
-import { CollectorDriverCommand, CollectorState } from '@src/shared/types'
-import SessionConfigurationStorage from '@src/shared/SessionConfigurationStorage'
-import { unstable_batchedUpdates } from 'react-dom'
-
-const DEFAULT_GRAVITY_SERVER_URL =
-  'https://gravity-api-production.osc-fr1.scalingo.io'
-
-const configurationStorage = new SessionConfigurationStorage()
+import useStorage from '@src/shared/hooks/useStorage'
+import storage from '@src/shared/storages/CollectorConfigurationStorage'
+import { EventMessage, sendActiveTabMessage } from '@src/shared/messages'
+import { DEFAULT_COLLECTOR_CONFIGURATION } from '@src/shared/constants'
 
 const Popup: React.FunctionComponent = () => {
-  const [state, setState] = useState(CollectorState.STOPPED)
+  const { isRunning, options } =
+    useStorage(storage) ?? DEFAULT_COLLECTOR_CONFIGURATION
   const [error, setError] = useState<string | null>(null)
-  const [authKey, setAuthKey] = useState('')
+  const [authKey, setAuthKey] = useState(options.authKey ?? '')
   const [gravityServerUrl, setGravityServerUrl] = useState<string>(
-    DEFAULT_GRAVITY_SERVER_URL,
+    options.gravityServerUrl ?? '',
   )
-  const [debug, setDebug] = useState(false)
-  const isRunning = state === CollectorState.RUNNING
-  const options = { gravityServerUrl, authKey, debug }
+  const [debug, setDebug] = useState(options.debug ?? false)
+
+  console.log('[popup] render', { isRunning, options })
 
   useEffect(() => {
-    configurationStorage.getState().then((state) => {
-      setState(state ?? CollectorState.STOPPED)
-    })
-    configurationStorage.getOptions().then((options) => {
-      if (options) {
-        const { authKey, gravityServerUrl, debug } = options
-        unstable_batchedUpdates(() => {
-          setAuthKey(authKey)
-          setGravityServerUrl(gravityServerUrl)
-          setDebug(debug)
-        })
+    const listener = function (request, sender, sendResponse) {
+      console.log('[popup] onMessage', request)
+      switch (request) {
+        case EventMessage.START:
+          if (!storage.getSnapshot().isRunning)
+            storage.start().catch(console.error)
+          break
+
+        case EventMessage.STOP:
+          if (storage.getSnapshot().isRunning)
+            storage.stop().catch(console.error)
+          break
       }
-    })
+      sendResponse(null)
+      return true
+    }
+    chrome.runtime.onMessage.addListener(listener)
+    return () => {
+      if (chrome.runtime.onMessage.hasListener(listener)) {
+        chrome.runtime.onMessage.removeListener(listener)
+      }
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
   function saveConfiguration() {
-    return configurationStorage.saveOptions(options)
+    return storage.save({
+      authKey,
+      gravityServerUrl,
+      debug,
+    })
+  }
+
+  function trigger(event: EventMessage) {
+    sendActiveTabMessage(event)
+      .then(() => console.log('[popup] trigger ' + event))
+      .catch(console.error)
   }
 
   function start() {
-    saveConfiguration().then(() => {
-      sendActiveTabMessage<CollectorState>({
-        gdc_driverCommand: CollectorDriverCommand.START,
-        gdc_collectorOptions: options,
-      })
-        .then(({ data, error }) => {
-          if (error) setError(error)
-          if (data) {
-            configurationStorage.saveState(CollectorState.RUNNING).then(() => {
-              setState(CollectorState.RUNNING)
-            })
-          }
-        })
-        .catch((e) => {
-          if (e.message.startsWith('Could not establish connection')) {
-            setError('Please refresh the active Chrome tab then retry')
-          } else {
-            setError(e.message)
-          }
-        })
-    })
+    saveConfiguration()
+      .then(storage.start)
+      .then(() => trigger(EventMessage.START))
   }
 
   function stop() {
-    sendActiveTabMessage<CollectorState>({
-      gdc_driverCommand: CollectorDriverCommand.STOP,
-      gdc_collectorOptions: options,
-    })
-      .then(({ data, error }) => {
-        if (error) setError(error)
-        if (data) {
-          configurationStorage.saveState(CollectorState.STOPPED).then(() => {
-            setState(CollectorState.STOPPED)
-          })
-        }
-      })
-      .catch((e) => setError(e.message))
+    storage.stop().then(() => trigger(EventMessage.STOP))
   }
 
   return (
@@ -93,6 +79,7 @@ const Popup: React.FunctionComponent = () => {
               <td>Auth key</td>
               <td>
                 <input
+                  type={'text'}
                   disabled={isRunning}
                   value={authKey}
                   onBlur={saveConfiguration}
@@ -107,6 +94,7 @@ const Popup: React.FunctionComponent = () => {
               <td>Gravity server</td>
               <td>
                 <input
+                  type={'text'}
                   disabled={isRunning}
                   value={gravityServerUrl}
                   onBlur={saveConfiguration}

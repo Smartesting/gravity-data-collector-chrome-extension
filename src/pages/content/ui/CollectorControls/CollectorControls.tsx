@@ -1,10 +1,15 @@
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import styled from '@emotion/styled'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faPlay } from '@fortawesome/free-solid-svg-icons/faPlay'
 import { faStop } from '@fortawesome/free-solid-svg-icons/faStop'
 import { faCaretDown } from '@fortawesome/free-solid-svg-icons/faCaretDown'
 import { faCaretUp } from '@fortawesome/free-solid-svg-icons/faCaretUp'
+import useStorage from '@src/shared/hooks/useStorage'
+import storage from '@src/shared/storages/CollectorConfigurationStorage'
+import { CollectorConfiguration } from '@src/shared/types'
+import { DEFAULT_COLLECTOR_CONFIGURATION } from '@src/shared/constants'
+import { EventMessage, sendRuntimeMessage } from '@src/shared/messages'
 
 // noinspection CssUnknownProperty
 const Container = styled.div`
@@ -38,12 +43,53 @@ const Container = styled.div`
 
 const CollectorControls: React.FunctionComponent = () => {
   const [collapsed, setCollapsed] = useState(false)
-  const [isRunning, setIsRunning] = useState(false)
+  const configuration: CollectorConfiguration | null = useStorage(storage)
+  console.log('[controls] render', { configuration })
 
-  //TODO if no conf no control
+  useEffect(() => {
+    const listener = function (request, sender, sendResponse) {
+      console.log('[controls] onMessage', request)
+      switch (request) {
+        case EventMessage.START:
+          if (!storage.getSnapshot().isRunning)
+            storage.start().catch(console.error)
+          break
 
+        case EventMessage.STOP:
+          if (storage.getSnapshot().isRunning)
+            storage.stop().catch(console.error)
+          break
+      }
+      sendResponse(null)
+      return true
+    }
+    chrome.runtime.onMessage.addListener(listener)
+    return () => {
+      if (chrome.runtime.onMessage.hasListener(listener)) {
+        chrome.runtime.onMessage.removeListener(listener)
+      }
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
+
+  function trigger(event: EventMessage) {
+    sendRuntimeMessage(event)
+      .then(() => console.log('[controls] trigger ' + event))
+      .catch(console.error)
+  }
+
+  function start() {
+    storage.start().then(() => trigger(EventMessage.START))
+  }
+
+  function stop() {
+    storage.stop().then(() => trigger(EventMessage.STOP))
+  }
+
+  if (emptyConfiguration(configuration)) return null //no controls if collector has never been launched
+  const isRunning = configuration.isRunning
   return (
-    <Container>
+    <Container data-testid='gdc-controls-container'>
       <ExpandButton
         data-testid='gdc-expand'
         onClick={() => setCollapsed(!collapsed)}
@@ -59,10 +105,9 @@ const CollectorControls: React.FunctionComponent = () => {
           </div>
           <ControlButton data-testid='gdc-play-stop-button'>
             <FontAwesomeIcon
-              onClick={() => setIsRunning(!isRunning)}
+              onClick={isRunning ? stop : start}
               icon={isRunning ? faStop : faPlay}
               color={isRunning ? 'red' : 'black'}
-              style={{ height: '14px' }}
             />
           </ControlButton>
         </Controls>
@@ -122,3 +167,17 @@ const ControlButton = styled.button`
     height: 18px;
   }
 `
+
+function emptyConfiguration(
+  configuration: CollectorConfiguration | null,
+): boolean {
+  if (!configuration) return true
+  const { isRunning, options } = configuration
+  return (
+    isRunning === DEFAULT_COLLECTOR_CONFIGURATION.isRunning &&
+    options.debug === DEFAULT_COLLECTOR_CONFIGURATION.options.debug &&
+    options.authKey === DEFAULT_COLLECTOR_CONFIGURATION.options.authKey &&
+    options.gravityServerUrl ===
+      DEFAULT_COLLECTOR_CONFIGURATION.options.gravityServerUrl
+  )
+}

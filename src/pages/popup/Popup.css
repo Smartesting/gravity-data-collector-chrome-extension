@@ -35,4 +35,9 @@
 .popup table td:nth-child(2) {
   text-align: start;
   padding-left: 2px;
+  display: flex;
+}
+
+.popup table td:nth-child(2) input[type=text] {
+  flex-grow: 1;
 }

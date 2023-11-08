@@ -1,4 +1,4 @@
-import { CollectorState, GravityResponse } from '@src/shared/types'
+import { GravityResponse } from '@src/shared/types'
 // eslint-disable-next-line import/no-duplicates
 import { CollectorOptions } from '@smartesting/gravity-data-collector'
 // eslint-disable-next-line import/no-duplicates
@@ -8,29 +8,38 @@ import { GRAVITY_SESSION_TRACKING_SUSPENDED } from '@smartesting/gravity-data-co
 
 export function initializeCollector(
   options: Partial<CollectorOptions>,
-): GravityResponse<CollectorState> {
+): string | null {
   try {
+    console.log('initialize collector ', options)
     GravityCollector.init(options)
     const { error, data: collectorWrapper } = getCollectorWrapper()
     if (error) {
-      return { error, data: null }
+      console.log('->', error)
+      return error
     }
     const trackingHandler = collectorWrapper.trackingHandler
     trackingHandler.activateTracking()
-    return { error: null, data: CollectorState.RUNNING }
+    console.log('->ok')
+    return null
   } catch (e) {
-    return { error: e.message, data: null }
+    console.log('->', e.message)
+    return e.message
   }
 }
 
-export function terminateCollector(): GravityResponse<CollectorState> {
+export function terminateCollector(): string | null {
+  console.log('terminate collector')
   const { error, data: collectorWrapper } = getCollectorWrapper()
-  if (error) return { error, data: null }
+  if (error) {
+    console.log('->', error)
+    return error
+  }
   collectorWrapper.trackingHandler.deactivateTracking()
   collectorWrapper.sessionIdHandler.generateNewSessionId()
   window.sessionStorage.removeItem(GRAVITY_SESSION_TRACKING_SUSPENDED)
   delete (window as any)._GravityCollector
-  return { error: null, data: CollectorState.STOPPED }
+  console.log('->ok')
+  return null
 }
 
 function getCollectorWrapper(): GravityResponse<CollectorWrapper> {
