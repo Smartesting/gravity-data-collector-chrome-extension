@@ -5,15 +5,18 @@ import withErrorBoundary from '@src/shared/hoc/withErrorBoundary'
 import useStorage from '@src/shared/hooks/useStorage'
 import storage from '@src/shared/storages/CollectorConfigurationStorage'
 import { EventMessage, sendActiveTabMessage } from '@src/shared/messages'
-import { DEFAULT_COLLECTOR_CONFIGURATION } from '@src/shared/constants'
+import {
+  DEFAULT_COLLECTOR_CONFIGURATION,
+  GravityServerUrls
+} from '@src/shared/constants'
 
 const Popup: React.FunctionComponent = () => {
   const { isRunning, options } =
     useStorage(storage) ?? DEFAULT_COLLECTOR_CONFIGURATION
   const [error, setError] = useState<string | null>(null)
-  const [authKey, setAuthKey] = useState(options.authKey ?? '')
+  const [authKey, setAuthKey] = useState<string>(options.authKey)
   const [gravityServerUrl, setGravityServerUrl] = useState<string>(
-    options.gravityServerUrl ?? '',
+    options.gravityServerUrl
   )
   const [debug, setDebug] = useState(options.debug ?? false)
 
@@ -49,7 +52,7 @@ const Popup: React.FunctionComponent = () => {
     return storage.save({
       authKey,
       gravityServerUrl,
-      debug,
+      debug
     })
   }
 
@@ -93,16 +96,15 @@ const Popup: React.FunctionComponent = () => {
             <tr>
               <td>Gravity server</td>
               <td>
-                <input
-                  type={'text'}
-                  disabled={isRunning}
-                  value={gravityServerUrl}
-                  onBlur={saveConfiguration}
-                  onChange={(event) => {
-                    setError(null)
-                    setGravityServerUrl(event.target.value)
-                  }}
-                />
+                {Object.keys(GravityServerUrls).map((key) => (
+                  <ServerRadioInput
+                    key={key}
+                    server={key}
+                    currentServerUrl={gravityServerUrl}
+                    onSelect={setGravityServerUrl}
+                    isRunning={isRunning}
+                  />
+                ))}
               </td>
             </tr>
             <tr>
@@ -145,5 +147,30 @@ const Popup: React.FunctionComponent = () => {
 
 export default withErrorBoundary(
   withSuspense(Popup, <div> Loading ... </div>),
-  <div> Error Occur </div>,
+  <div> Error Occur </div>
 )
+
+const ServerRadioInput: React.FunctionComponent<{
+  server: string
+  currentServerUrl: string
+  onSelect: (url: string) => void
+  isRunning: boolean
+}> = ({ server, currentServerUrl, onSelect, isRunning }) => {
+  const url = GravityServerUrls[server]
+  return (
+    <div style={{ display: 'flex', paddingRight: '6px' }}>
+      <input
+        disabled={isRunning}
+        type='radio'
+        id={server}
+        name='gravityServerUrl'
+        value={server}
+        checked={url === currentServerUrl}
+        onChange={() => onSelect(url)}
+      />
+      <label htmlFor={server} title={url} style={{ margin: 'auto' }}>
+        {server.toLowerCase()}
+      </label>
+    </div>
+  )
+}
