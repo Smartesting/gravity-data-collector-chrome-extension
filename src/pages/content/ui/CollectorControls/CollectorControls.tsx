@@ -10,6 +10,9 @@ import storage from '@src/shared/storages/CollectorConfigurationStorage'
 import { CollectorConfiguration } from '@src/shared/types'
 import { DEFAULT_COLLECTOR_CONFIGURATION } from '@src/shared/constants'
 import { EventMessage, sendRuntimeMessage } from '@src/shared/messages'
+import { makeLogger } from '@src/shared/logger'
+
+const logger = makeLogger('controls')
 
 // noinspection CssUnknownProperty
 const Container = styled.div`
@@ -44,11 +47,11 @@ const Container = styled.div`
 const CollectorControls: React.FunctionComponent = () => {
   const [collapsed, setCollapsed] = useState(false)
   const configuration: CollectorConfiguration | null = useStorage(storage)
-  console.log('[controls] render', { configuration })
+  logger('render', { configuration })
 
   useEffect(() => {
     const listener = function (request, sender, sendResponse) {
-      console.log('[controls] onMessage', request)
+      logger('onMessage', request)
       switch (request) {
         case EventMessage.START:
           if (!storage.getSnapshot().isRunning)
@@ -74,7 +77,7 @@ const CollectorControls: React.FunctionComponent = () => {
 
   function trigger(event: EventMessage) {
     sendRuntimeMessage(event)
-      .then(() => console.log('[controls] trigger ' + event))
+      .then(() => logger('trigger ' + event))
       .catch(console.error)
   }
 
@@ -169,7 +172,7 @@ const ControlButton = styled.button`
 `
 
 function emptyConfiguration(
-  configuration: CollectorConfiguration | null,
+  configuration: CollectorConfiguration | null
 ): boolean {
   if (!configuration) return true
   const { isRunning, options } = configuration

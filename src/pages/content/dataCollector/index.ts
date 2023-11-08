@@ -1,15 +1,18 @@
 import {
   initializeCollector,
-  terminateCollector,
+  terminateCollector
 } from '@pages/content/dataCollector/controls'
 import collectorConfigurationStorage from '@src/shared/storages/CollectorConfigurationStorage'
 import { EventMessage } from '@src/shared/messages'
+import { makeLogger } from '@src/shared/logger'
+
+const logger = makeLogger('content')
 
 chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
-  console.log('[content] onMessage', request)
+  logger('onMessage', request)
   if (request === EventMessage.START || request === EventMessage.STOP) {
     refreshCollector().then((error) => {
-      console.log('[content] refresh collector => error=', error)
+      logger('refresh collector => error=', error)
       sendResponse(error)
     })
     return true
@@ -17,7 +20,7 @@ chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
 })
 
 refreshCollector().then((error) => {
-  console.log('[content] load => error=' + error)
+  logger('load => error=' + error)
 })
 
 function refreshCollector(): Promise<string | null> {

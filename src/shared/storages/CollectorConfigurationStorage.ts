@@ -9,46 +9,42 @@ type CollectorConfigurationStorage = IStorage<CollectorConfiguration> & {
   save: (options: Partial<CollectorOptions>) => Promise<CollectorConfiguration>
 }
 
-console.log('create collectorConfigurationStorage')
 const base: IStorage<CollectorConfiguration> =
   createStorage<CollectorConfiguration>(
     'gravity-configuration-storage-key',
-    DEFAULT_COLLECTOR_CONFIGURATION,
+    DEFAULT_COLLECTOR_CONFIGURATION
   )
 
 const collectorConfigurationStorage: CollectorConfigurationStorage = {
   ...base,
   start: async (): Promise<CollectorConfiguration> => {
-    console.log('[storage] save start')
     return base.set((previousConfiguration) => {
       return {
         ...previousConfiguration,
-        isRunning: true,
+        isRunning: true
       }
     })
   },
 
   stop: async (): Promise<CollectorConfiguration> => {
-    console.log('[storage] save stop')
     return base.set((previousConfiguration) => {
       return {
         ...previousConfiguration,
-        isRunning: false,
+        isRunning: false
       }
     })
   },
 
   save: async (
-    options: Partial<CollectorOptions>,
+    options: Partial<CollectorOptions>
   ): Promise<CollectorConfiguration> => {
-    console.log('[storage] save options')
     return base.set((previousConfiguration) => {
       return {
         ...previousConfiguration,
-        options,
+        options
       }
     })
-  },
+  }
 }
 
 export default collectorConfigurationStorage

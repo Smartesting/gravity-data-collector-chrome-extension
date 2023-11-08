@@ -9,6 +9,9 @@ import {
   DEFAULT_COLLECTOR_CONFIGURATION,
   GravityServerUrls
 } from '@src/shared/constants'
+import { makeLogger } from '@src/shared/logger'
+
+const logger = makeLogger('popup')
 
 const Popup: React.FunctionComponent = () => {
   const { isRunning, options } =
@@ -20,11 +23,11 @@ const Popup: React.FunctionComponent = () => {
   )
   const [debug, setDebug] = useState(options.debug ?? false)
 
-  console.log('[popup] render', { isRunning, options })
+  logger('render', { isRunning, options })
 
   useEffect(() => {
     const listener = function (request, sender, sendResponse) {
-      console.log('[popup] onMessage', request)
+      logger('onMessage', request)
       switch (request) {
         case EventMessage.START:
           if (!storage.getSnapshot().isRunning)
@@ -58,7 +61,7 @@ const Popup: React.FunctionComponent = () => {
 
   function trigger(event: EventMessage) {
     sendActiveTabMessage(event)
-      .then(() => console.log('[popup] trigger ' + event))
+      .then(() => logger('trigger ' + event))
       .catch(console.error)
   }
 

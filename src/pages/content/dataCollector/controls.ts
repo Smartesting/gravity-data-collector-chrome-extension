@@ -5,40 +5,43 @@ import { CollectorOptions } from '@smartesting/gravity-data-collector'
 import GravityCollector from '@smartesting/gravity-data-collector/dist'
 import CollectorWrapper from '@smartesting/gravity-data-collector/dist/collector/CollectorWrapper'
 import { GRAVITY_SESSION_TRACKING_SUSPENDED } from '@smartesting/gravity-data-collector/dist/tracking-handler/TrackingHandler'
+import { makeLogger } from '@src/shared/logger'
+
+const logger = makeLogger('dataCollector')
 
 export function initializeCollector(
-  options: Partial<CollectorOptions>,
+  options: Partial<CollectorOptions>
 ): string | null {
   try {
-    console.log('initialize collector ', options)
+    logger('initialize', options)
     GravityCollector.init(options)
     const { error, data: collectorWrapper } = getCollectorWrapper()
     if (error) {
-      console.log('->', error)
+      logger('->', error)
       return error
     }
     const trackingHandler = collectorWrapper.trackingHandler
     trackingHandler.activateTracking()
-    console.log('->ok')
+    logger('->ok')
     return null
   } catch (e) {
-    console.log('->', e.message)
+    logger('->', e.message)
     return e.message
   }
 }
 
 export function terminateCollector(): string | null {
-  console.log('terminate collector')
+  logger('terminate')
   const { error, data: collectorWrapper } = getCollectorWrapper()
   if (error) {
-    console.log('->', error)
+    logger('->', error)
     return error
   }
   collectorWrapper.trackingHandler.deactivateTracking()
   collectorWrapper.sessionIdHandler.generateNewSessionId()
   window.sessionStorage.removeItem(GRAVITY_SESSION_TRACKING_SUSPENDED)
   delete (window as any)._GravityCollector
-  console.log('->ok')
+  logger('->ok')
   return null
 }
 

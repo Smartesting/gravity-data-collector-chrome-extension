@@ -1,4 +1,4 @@
-console.log('Load Gravity Data Collector content')
+console.log('Load Gravity Data Collector content page')
 
 /**
  * DO NOT USE import someModule from '...';
