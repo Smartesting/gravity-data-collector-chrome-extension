@@ -39,7 +39,7 @@
     "@commitlint/cli": "^17.7.2",
     "@commitlint/config-conventional": "^17.7.0",
     "@jest/globals": "^29.7.0",
-    "@rollup/plugin-typescript": "^8.5.0",
+    "@rollup/plugin-typescript": "^11.1.6",
     "@smartesting/gravity-data-collector": "^3.14.0",
     "@testing-library/jest-dom": "^6.1.4",
     "@testing-library/react": "13.4.0",
