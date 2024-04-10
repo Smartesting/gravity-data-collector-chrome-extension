@@ -5,7 +5,12 @@ export type CollectorConfiguration = {
   options: Partial<CollectorOptions>
 }
 
-export type GravityResponse<DATA> = {
-  error: string | null
-  data: DATA | null
-}
+export type GravityResponse<Data> =
+  | {
+      data: Data
+      error?: undefined
+    }
+  | {
+      data?: undefined
+      error: string
+    }

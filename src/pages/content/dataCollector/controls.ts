@@ -4,7 +4,6 @@ import { CollectorOptions } from '@smartesting/gravity-data-collector'
 // eslint-disable-next-line import/no-duplicates
 import GravityCollector from '@smartesting/gravity-data-collector/dist'
 import CollectorWrapper from '@smartesting/gravity-data-collector/dist/collector/CollectorWrapper'
-import { GRAVITY_SESSION_TRACKING_SUSPENDED } from '@smartesting/gravity-data-collector/dist/tracking-handler/TrackingHandler'
 import { makeLogger } from '@src/shared/logger'
 
 const logger = makeLogger('dataCollector')
@@ -15,13 +14,11 @@ export function initializeCollector(
   try {
     logger('initialize', options)
     GravityCollector.init(options)
-    const { error, data: collectorWrapper } = getCollectorWrapper()
+    const { error } = getCollectorWrapper()
     if (error) {
       logger('->', error)
       return error
     }
-    const trackingHandler = collectorWrapper.trackingHandler
-    trackingHandler.activateTracking()
     logger('->ok')
     return null
   } catch (e) {
@@ -37,9 +34,7 @@ export function terminateCollector(): string | null {
     logger('->', error)
     return error
   }
-  collectorWrapper.trackingHandler.deactivateTracking()
-  collectorWrapper.sessionIdHandler.generateNewSessionId()
-  window.sessionStorage.removeItem(GRAVITY_SESSION_TRACKING_SUSPENDED)
+  collectorWrapper.terminateRecording(true)
   delete (window as any)._GravityCollector
   logger('->ok')
   return null
@@ -48,11 +43,11 @@ export function terminateCollector(): string | null {
 function getCollectorWrapper(): GravityResponse<CollectorWrapper> {
   const collector = (window as any)._GravityCollector
   if (collector === undefined) {
-    return { error: 'No Collector', data: null }
+    return { error: 'No Collector' }
   }
   const collectorWrapper = collector.collectorWrapper
   if (collectorWrapper === undefined) {
-    return { error: 'No Collector wrapper', data: null }
+    return { error: 'No Collector wrapper' }
   }
-  return { error: null, data: collectorWrapper }
+  return { data: collectorWrapper }
 }
